@@ -88,7 +88,7 @@ class CoqLexer(RegexLexer):
         '<->', '=', '>', '>]', r'>\}', r'\?', r'\?\?', r'\[', r'\[<', r'\[>',
         r'\[\|', ']', '_', '`', r'\{', r'\{<', r'\|', r'\|]', r'\}', '~', '=>',
         r'/\\', r'\\/',
-        u'Π', u'λ',
+        'Π', 'λ',
     )
     operators = r'[!$%&*+\./:<=>?@^|~-]'
     word_operators = ('and', 'asr', 'land', 'lor', 'lsl', 'lxor', 'mod', 'or')
@@ -419,13 +419,13 @@ class LeanLexer(RegexLexer):
         '!=', '#', '&', '&&', '*', '+', '-', '/', '@',
         '-.', '->', '.', '..', '...', '::', ':>', ';', ';;', '<',
         '<-', '=', '==', '>', '_', '`', '|', '||', '~', '=>', '<=', '>=',
-        '/\\', '\\/', u'∀', u'Π', u'λ', u'↔', u'∧', u'∨', u'≠', u'≤', u'≥',
-        u'¬', u'⁻¹', u'⬝', u'▸', u'→', u'∃', u'ℕ', u'ℤ', u'≈'
+        '/\\', '\\/', '∀', 'Π', 'λ', '↔', '∧', '∨', '≠', '≤', '≥',
+        '¬', '⁻¹', '⬝', '▸', '→', '∃', 'ℕ', 'ℤ', '≈'
     )
 
     word_operators = ('and', 'or', 'not', 'iff', 'eq')
 
-    punctuation = ('(', ')', ':', '{', '}', '[', ']', u'⦃', u'⦄', ':=', ',')
+    punctuation = ('(', ')', ':', '{', '}', '[', ']', '⦃', '⦄', ':=', ',')
 
     primitives = ('unit', 'int', 'bool', 'string', 'char', 'list',
                   'array', 'prod', 'sum', 'pair', 'real', 'nat', 'num', 'path')
@@ -444,9 +444,9 @@ class LeanLexer(RegexLexer):
             (words(word_operators, prefix=r'\b', suffix=r'\b'), Name.Builtin.Pseudo),
             (words(punctuation), Operator),
             (words(primitives, prefix=r'\b', suffix=r'\b'), Keyword.Type),
-            (u"[A-Za-z_\u03b1-\u03ba\u03bc-\u03fb\u1f00-\u1ffe\u2100-\u214f]"
-             u"[A-Za-z_'\u03b1-\u03ba\u03bc-\u03fb\u1f00-\u1ffe\u2070-\u2079"
-             u"\u207f-\u2089\u2090-\u209c\u2100-\u214f]*", Name),
+            ("[A-Za-z_\u03b1-\u03ba\u03bc-\u03fb\u1f00-\u1ffe\u2100-\u214f]"
+             "[A-Za-z_'\u03b1-\u03ba\u03bc-\u03fb\u1f00-\u1ffe\u2070-\u2079"
+             "\u207f-\u2089\u2090-\u209c\u2100-\u214f]*", Name),
             (r'\d+', Number.Integer),
             (r'"', String.Double, 'string'),
             (r'[~?][a-z][\w\']*:', Name.Variable)

@@ -219,7 +219,7 @@ def unirange(a, b):
 
     if sys.maxunicode > 0xffff:
         # wide build
-        return u'[%s-%s]' % (unichr(a), unichr(b))
+        return '[%s-%s]' % (unichr(a), unichr(b))
     else:
         # narrow build stores surrogates, and the 're' module handles them
         # (incorrectly) as characters.  Since there is still ordering among
@@ -233,20 +233,20 @@ def unirange(a, b):
         ah, al = _surrogatepair(a)
         bh, bl = _surrogatepair(b)
         if ah == bh:
-            return u'(?:%s[%s-%s])' % (unichr(ah), unichr(al), unichr(bl))
+            return '(?:%s[%s-%s])' % (unichr(ah), unichr(al), unichr(bl))
         else:
             buf = []
-            buf.append(u'%s[%s-%s]' %
+            buf.append('%s[%s-%s]' %
                        (unichr(ah), unichr(al),
                         ah == bh and unichr(bl) or unichr(0xdfff)))
             if ah - bh > 1:
-                buf.append(u'[%s-%s][%s-%s]' %
+                buf.append('[%s-%s][%s-%s]' %
                            unichr(ah+1), unichr(bh-1), unichr(0xdc00), unichr(0xdfff))
             if ah != bh:
-                buf.append(u'%s[%s-%s]' %
+                buf.append('%s[%s-%s]' %
                            (unichr(bh), unichr(0xdc00), unichr(bl)))
 
-            return u'(?:' + u'|'.join(buf) + u')'
+            return '(?:' + '|'.join(buf) + ')'
 
 
 def format_lines(var_name, seq, raw=False, indent_level=0):
@@ -347,7 +347,7 @@ if sys.version_info < (3, 0):
     xrange = xrange
     string_types = (str, unicode)
     text_type = unicode
-    u_prefix = 'u'
+    u_prefix = ''
     iteritems = dict.iteritems
     itervalues = dict.itervalues
     import StringIO, cStringIO
