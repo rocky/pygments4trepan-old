@@ -22,121 +22,26 @@ from pygments.token import Error, Punctuation, Whitespace, \
     Text, Comment, Operator, Keyword, Name, String, Number, Other, Token
 from pygments.util import html_doctype_matches, looks_like_xml
 
-__all__ = ['HtmlPhpLexer', 'XmlPhpLexer', 'CssPhpLexer',
-           'JavascriptPhpLexer', 'ErbLexer', 'RhtmlLexer',
-           'XmlErbLexer', 'CssErbLexer', 'JavascriptErbLexer',
-           'SmartyLexer', 'HtmlSmartyLexer', 'XmlSmartyLexer',
+__all__ = ['XmlPhpLexer', 'CssPhpLexer',
+           'JavascriptPhpLexer',
+           'XmlErbLexer', 'CssErbLexer',
+           'XmlSmartyLexer',
            'CssSmartyLexer', 'JavascriptSmartyLexer', 'DjangoLexer',
-           'HtmlDjangoLexer', 'CssDjangoLexer', 'XmlDjangoLexer',
+           'CssDjangoLexer', 'XmlDjangoLexer',
            'JavascriptDjangoLexer', 'GenshiLexer',
            'GenshiTextLexer', 'CssGenshiLexer', 'JavascriptGenshiLexer',
-           'MyghtyLexer', 'MyghtyHtmlLexer', 'MyghtyXmlLexer',
-           'MyghtyCssLexer', 'MyghtyJavascriptLexer', 'MakoLexer',
+           'MyghtyLexer', 'MyghtyXmlLexer',
+           'MyghtyCssLexer', 'MakoLexer',
            'MakoHtmlLexer', 'MakoXmlLexer', 'MakoJavascriptLexer',
-           'MakoCssLexer', 'CheetahLexer', 'CheetahHtmlLexer',
-           'CheetahXmlLexer', 'CheetahJavascriptLexer', 'EvoqueLexer',
-           'EvoqueHtmlLexer', 'EvoqueXmlLexer', 'ColdfusionLexer',
+           'MakoCssLexer', 'CheetahLexer',
+           'EvoqueLexer',
+           'EvoqueXmlLexer', 'ColdfusionLexer',
            'ColdfusionCFCLexer', 'VelocityLexer',
-           'VelocityHtmlLexer', 'VelocityXmlLexer', 'SspLexer',
-           'TeaTemplateLexer', 'LassoHtmlLexer', 'LassoXmlLexer',
+           'VelocityHtmlLexer', 'VelocityXmlLexer',
+           'LassoHtmlLexer', 'LassoXmlLexer',
            'LassoCssLexer', 'LassoJavascriptLexer', 'HandlebarsLexer',
-           'HandlebarsHtmlLexer', 'YamlJinjaLexer', 'LiquidLexer',
+           'YamlJinjaLexer', 'LiquidLexer',
            'TwigLexer', 'TwigHtmlLexer']
-
-
-class ErbLexer(Lexer):
-    """
-    Generic `ERB <http://ruby-doc.org/core/classes/ERB.html>`_ (Ruby Templating)
-    lexer.
-
-    Just highlights ruby code between the preprocessor directives, other data
-    is left untouched by the lexer.
-
-    All options are also forwarded to the `RubyLexer`.
-    """
-
-    name = 'ERB'
-    aliases = ['erb']
-    mimetypes = ['application/x-ruby-templating']
-
-    _block_re = re.compile(r'(<%%|%%>|<%=|<%#|<%-|<%|-%>|%>|^%[^%].*?$)', re.M)
-
-    def __init__(self, **options):
-        from pygments.lexers.ruby import RubyLexer
-        self.ruby_lexer = RubyLexer(**options)
-        Lexer.__init__(self, **options)
-
-    def get_tokens_unprocessed(self, text):
-        """
-        Since ERB doesn't allow "<%" and other tags inside of ruby
-        blocks we have to use a split approach here that fails for
-        that too.
-        """
-        tokens = self._block_re.split(text)
-        tokens.reverse()
-        state = idx = 0
-        try:
-            while True:
-                # text
-                if state == 0:
-                    val = tokens.pop()
-                    yield idx, Other, val
-                    idx += len(val)
-                    state = 1
-                # block starts
-                elif state == 1:
-                    tag = tokens.pop()
-                    # literals
-                    if tag in ('<%%', '%%>'):
-                        yield idx, Other, tag
-                        idx += 3
-                        state = 0
-                    # comment
-                    elif tag == '<%#':
-                        yield idx, Comment.Preproc, tag
-                        val = tokens.pop()
-                        yield idx + 3, Comment, val
-                        idx += 3 + len(val)
-                        state = 2
-                    # blocks or output
-                    elif tag in ('<%', '<%=', '<%-'):
-                        yield idx, Comment.Preproc, tag
-                        idx += len(tag)
-                        data = tokens.pop()
-                        r_idx = 0
-                        for r_idx, r_token, r_value in \
-                                self.ruby_lexer.get_tokens_unprocessed(data):
-                            yield r_idx + idx, r_token, r_value
-                        idx += len(data)
-                        state = 2
-                    elif tag in ('%>', '-%>'):
-                        yield idx, Error, tag
-                        idx += len(tag)
-                        state = 0
-                    # % raw ruby statements
-                    else:
-                        yield idx, Comment.Preproc, tag[0]
-                        r_idx = 0
-                        for r_idx, r_token, r_value in \
-                                self.ruby_lexer.get_tokens_unprocessed(tag[1:]):
-                            yield idx + 1 + r_idx, r_token, r_value
-                        idx += len(tag)
-                        state = 0
-                # block ends
-                elif state == 2:
-                    tag = tokens.pop()
-                    if tag not in ('%>', '-%>'):
-                        yield idx, Other, tag
-                    else:
-                        yield idx, Comment.Preproc, tag
-                    idx += len(tag)
-                    state = 0
-        except IndexError:
-            return
-
-    def analyse_text(text):
-        if '<%' in text and '%>' in text:
-            return 0.4
 
 
 class SmartyLexer(RegexLexer):
@@ -446,23 +351,6 @@ class MyghtyLexer(RegexLexer):
     }
 
 
-class MyghtyHtmlLexer(DelegatingLexer):
-    """
-    Subclass of the `MyghtyLexer` that highlights unlexed data
-    with the `HtmlLexer`.
-
-    .. versionadded:: 0.6
-    """
-
-    name = 'HTML+Myghty'
-    aliases = ['html+myghty']
-    mimetypes = ['text/html+myghty']
-
-    def __init__(self, **options):
-        super(MyghtyHtmlLexer, self).__init__(MyghtyLexer,
-                                              **options)
-
-
 class MyghtyXmlLexer(DelegatingLexer):
     """
     Subclass of the `MyghtyLexer` that highlights unlexed data
@@ -478,24 +366,6 @@ class MyghtyXmlLexer(DelegatingLexer):
     def __init__(self, **options):
         super(MyghtyXmlLexer, self).__init__(XmlLexer, MyghtyLexer,
                                              **options)
-
-
-class MyghtyJavascriptLexer(DelegatingLexer):
-    """
-    Subclass of the `MyghtyLexer` that highlights unlexed data
-    with the `JavascriptLexer`.
-
-    .. versionadded:: 0.6
-    """
-
-    name = 'JavaScript+Myghty'
-    aliases = ['js+myghty', 'javascript+myghty']
-    mimetypes = ['application/x-javascript+myghty',
-                 'text/x-javascript+myghty',
-                 'text/javascript+mygthy']
-
-    def __init__(self, **options):
-        super(MyghtyJavascriptLexer, self).__init__(MyghtyLexer, **options)
 
 
 class MyghtyCssLexer(DelegatingLexer):
@@ -712,57 +582,6 @@ class CheetahLexer(RegexLexer):
     }
 
 
-class CheetahHtmlLexer(DelegatingLexer):
-    """
-    Subclass of the `CheetahLexer` that highlights unlexed data
-    with the `HtmlLexer`.
-    """
-
-    name = 'HTML+Cheetah'
-    aliases = ['html+cheetah', 'html+spitfire', 'htmlcheetah']
-    mimetypes = ['text/html+cheetah', 'text/html+spitfire']
-
-    def __init__(self, **options):
-        super(CheetahHtmlLexer, self).__init__(CheetahLexer,
-                                               **options)
-
-
-class CheetahXmlLexer(DelegatingLexer):
-    """
-    Subclass of the `CheetahLexer` that highlights unlexed data
-    with the `XmlLexer`.
-    """
-
-    name = 'XML+Cheetah'
-    aliases = ['xml+cheetah', 'xml+spitfire']
-    mimetypes = ['application/xml+cheetah', 'application/xml+spitfire']
-
-    def __init__(self, **options):
-        super(CheetahXmlLexer, self).__init__(XmlLexer, CheetahLexer,
-                                              **options)
-
-
-class CheetahJavascriptLexer(DelegatingLexer):
-    """
-    Subclass of the `CheetahLexer` that highlights unlexed data
-    with the `JavascriptLexer`.
-    """
-
-    name = 'JavaScript+Cheetah'
-    aliases = ['js+cheetah', 'javascript+cheetah',
-               'js+spitfire', 'javascript+spitfire']
-    mimetypes = ['application/x-javascript+cheetah',
-                 'text/x-javascript+cheetah',
-                 'text/javascript+cheetah',
-                 'application/x-javascript+spitfire',
-                 'text/x-javascript+spitfire',
-                 'text/javascript+spitfire']
-
-    def __init__(self, **options):
-        super(CheetahJavascriptLexer, self).__init__(JavascriptLexer,
-                                                     CheetahLexer, **options)
-
-
 class GenshiTextLexer(RegexLexer):
     """
     A lexer that highlights `genshi <http://genshi.edgewall.org/>`_ text
@@ -951,31 +770,6 @@ class CssGenshiLexer(DelegatingLexer):
         return GenshiLexer.analyse_text(text) - 0.05
 
 
-class RhtmlLexer(DelegatingLexer):
-    """
-    Subclass of the ERB lexer that highlights the unlexed data with the
-    html lexer.
-
-    Nested Javascript and CSS is highlighted too.
-    """
-
-    name = 'RHTML'
-    aliases = ['rhtml', 'html+erb', 'html+ruby']
-    filenames = ['*.rhtml']
-    alias_filenames = ['*.html', '*.htm', '*.xhtml']
-    mimetypes = ['text/html+ruby']
-
-    def __init__(self, **options):
-        super(RhtmlLexer, self).__init__(ErbLexer, **options)
-
-    def analyse_text(text):
-        rv = ErbLexer.analyse_text(text) - 0.01
-        if html_doctype_matches(text):
-            # one more than the XmlErbLexer returns
-            rv += 0.5
-        return rv
-
-
 class XmlErbLexer(DelegatingLexer):
     """
     Subclass of `ErbLexer` which highlights data outside preprocessor
@@ -1012,53 +806,6 @@ class CssErbLexer(DelegatingLexer):
 
     def analyse_text(text):
         return ErbLexer.analyse_text(text) - 0.05
-
-
-class JavascriptErbLexer(DelegatingLexer):
-    """
-    Subclass of `ErbLexer` which highlights unlexed data with the
-    `JavascriptLexer`.
-    """
-
-    name = 'JavaScript+Ruby'
-    aliases = ['js+erb', 'javascript+erb', 'js+ruby', 'javascript+ruby']
-    alias_filenames = ['*.js']
-    mimetypes = ['application/x-javascript+ruby',
-                 'text/x-javascript+ruby',
-                 'text/javascript+ruby']
-
-    def __init__(self, **options):
-        super(JavascriptErbLexer, self).__init__(JavascriptLexer, ErbLexer,
-                                                 **options)
-
-    def analyse_text(text):
-        return ErbLexer.analyse_text(text) - 0.05
-
-
-class HtmlPhpLexer(DelegatingLexer):
-    """
-    Subclass of `PhpLexer` that highlights unhandled data with the `HtmlLexer`.
-
-    Nested Javascript and CSS is highlighted too.
-    """
-
-    name = 'HTML+PHP'
-    aliases = ['html+php']
-    filenames = ['*.phtml']
-    alias_filenames = ['*.php', '*.html', '*.htm', '*.xhtml',
-                       '*.php[345]']
-    mimetypes = ['application/x-php',
-                 'application/x-httpd-php', 'application/x-httpd-php3',
-                 'application/x-httpd-php4', 'application/x-httpd-php5']
-
-    def __init__(self, **options):
-        super(HtmlPhpLexer, self).__init__(PhpLexer, **options)
-
-    def analyse_text(text):
-        rv = PhpLexer.analyse_text(text) - 0.01
-        if html_doctype_matches(text):
-            rv += 0.5
-        return rv
 
 
 class XmlPhpLexer(DelegatingLexer):
@@ -1119,29 +866,6 @@ class JavascriptPhpLexer(DelegatingLexer):
         return PhpLexer.analyse_text(text)
 
 
-class HtmlSmartyLexer(DelegatingLexer):
-    """
-    Subclass of the `SmartyLexer` that highighlights unlexed data with the
-    `HtmlLexer`.
-
-    Nested Javascript and CSS is highlighted too.
-    """
-
-    name = 'HTML+Smarty'
-    aliases = ['html+smarty']
-    alias_filenames = ['*.html', '*.htm', '*.xhtml', '*.tpl']
-    mimetypes = ['text/html+smarty']
-
-    def __init__(self, **options):
-        super(HtmlSmartyLexer, self).__init__(HtmlLexer, SmartyLexer, **options)
-
-    def analyse_text(text):
-        rv = SmartyLexer.analyse_text(text) - 0.01
-        if html_doctype_matches(text):
-            rv += 0.5
-        return rv
-
-
 class XmlSmartyLexer(DelegatingLexer):
     """
     Subclass of the `SmartyLexer` that highlights unlexed data with the
@@ -1200,29 +924,6 @@ class JavascriptSmartyLexer(DelegatingLexer):
 
     def analyse_text(text):
         return SmartyLexer.analyse_text(text) - 0.05
-
-
-class HtmlDjangoLexer(DelegatingLexer):
-    """
-    Subclass of the `DjangoLexer` that highighlights unlexed data with the
-    `HtmlLexer`.
-
-    Nested Javascript and CSS is highlighted too.
-    """
-
-    name = 'HTML+Django/Jinja'
-    aliases = ['html+django', 'html+jinja', 'htmldjango']
-    alias_filenames = ['*.html', '*.htm', '*.xhtml']
-    mimetypes = ['text/html+django', 'text/html+jinja']
-
-    def __init__(self, **options):
-        super(HtmlDjangoLexer, self).__init__(HtmlLexer, DjangoLexer, **options)
-
-    def analyse_text(text):
-        rv = DjangoLexer.analyse_text(text) - 0.01
-        if html_doctype_matches(text):
-            rv += 0.5
-        return rv
 
 
 class XmlDjangoLexer(DelegatingLexer):
@@ -1289,29 +990,6 @@ class JavascriptDjangoLexer(DelegatingLexer):
         return DjangoLexer.analyse_text(text) - 0.05
 
 
-class JspLexer(DelegatingLexer):
-    """
-    Lexer for Java Server Pages.
-
-    .. versionadded:: 0.7
-    """
-    name = 'Java Server Page'
-    aliases = ['jsp']
-    filenames = ['*.jsp']
-    mimetypes = ['application/x-jsp']
-
-    def __init__(self, **options):
-        super(JspLexer, self).__init__(XmlLexer, JspRootLexer, **options)
-
-    def analyse_text(text):
-        rv = JavaLexer.analyse_text(text) - 0.01
-        if looks_like_xml(text):
-            rv += 0.4
-        if '<%' in text and '%>' in text:
-            rv += 0.1
-        return rv
-
-
 class EvoqueLexer(RegexLexer):
     """
     For files using the Evoque templating system.
@@ -1363,23 +1041,6 @@ class EvoqueLexer(RegexLexer):
             (r'[\]#]', Comment.Multiline)
         ],
     }
-
-
-class EvoqueHtmlLexer(DelegatingLexer):
-    """
-    Subclass of the `EvoqueLexer` that highlights unlexed data with the
-    `HtmlLexer`.
-
-    .. versionadded:: 1.1
-    """
-    name = 'HTML+Evoque'
-    aliases = ['html+evoque']
-    filenames = ['*.html']
-    mimetypes = ['text/html+evoque']
-
-    def __init__(self, **options):
-        super(EvoqueHtmlLexer, self).__init__(EvoqueLexer,
-                                              **options)
 
 
 class EvoqueXmlLexer(DelegatingLexer):
@@ -1521,55 +1182,6 @@ class ColdfusionCFCLexer(DelegatingLexer):
     def __init__(self, **options):
         super(ColdfusionCFCLexer, self).__init__(ColdfusionHtmlLexer, ColdfusionLexer,
                                                  **options)
-
-
-class SspLexer(DelegatingLexer):
-    """
-    Lexer for Scalate Server Pages.
-
-    .. versionadded:: 1.4
-    """
-    name = 'Scalate Server Page'
-    aliases = ['ssp']
-    filenames = ['*.ssp']
-    mimetypes = ['application/x-ssp']
-
-    def __init__(self, **options):
-        super(SspLexer, self).__init__(XmlLexer, JspRootLexer, **options)
-
-    def analyse_text(text):
-        rv = 0.0
-        if re.search(r'val \w+\s*:', text):
-            rv += 0.6
-        if looks_like_xml(text):
-            rv += 0.2
-        if '<%' in text and '%>' in text:
-            rv += 0.1
-        return rv
-
-
-class TeaTemplateLexer(DelegatingLexer):
-    """
-    Lexer for `Tea Templates <http://teatrove.org/>`_.
-
-    .. versionadded:: 1.5
-    """
-    name = 'Tea'
-    aliases = ['tea']
-    filenames = ['*.tea']
-    mimetypes = ['text/x-tea']
-
-    def __init__(self, **options):
-        super(TeaTemplateLexer, self).__init__(XmlLexer,
-                                               TeaTemplateRootLexer, **options)
-
-    def analyse_text(text):
-        rv = TeaLangLexer.analyse_text(text) - 0.01
-        if looks_like_xml(text):
-            rv += 0.4
-        if '<%' in text and '%>' in text:
-            rv += 0.1
-        return rv
 
 
 class LassoHtmlLexer(DelegatingLexer):
@@ -1724,23 +1336,6 @@ class HandlebarsLexer(RegexLexer):
              r"0[xX][0-9a-fA-F]+[Ll]?", Number),
         ]
     }
-
-
-class HandlebarsHtmlLexer(DelegatingLexer):
-    """
-    Subclass of the `HandlebarsLexer` that highlights unlexed data with the
-    `HtmlLexer`.
-
-    .. versionadded:: 2.0
-    """
-
-    name = "HTML+Handlebars"
-    aliases = ["html+handlebars"]
-    filenames = ['*.handlebars', '*.hbs']
-    mimetypes = ['text/html+handlebars', 'text/x-handlebars-template']
-
-    def __init__(self, **options):
-        super(HandlebarsHtmlLexer, self).__init__(HandlebarsLexer, **options)
 
 
 class YamlJinjaLexer(DelegatingLexer):

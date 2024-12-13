@@ -63,6 +63,10 @@ def test_example_files():
         if lx is None:
             try:
                 lx = get_lexer_for_filename(absfn, code=code)
+            except TypeError:
+                print("XXX0", absfn, code)
+                raise AssertionError('file %r code' % absfn)
+
             except ClassNotFound:
                 raise AssertionError('file %r has no registered extension, '
                                      'nor is of the form <lexer>_filename '

@@ -128,8 +128,12 @@ def combine(*args):
 def allexcept(*args):
     newcats = cats[:]
     for arg in args:
-        newcats.remove(arg)
-    return ''.join(globals()[cat] for cat in newcats)
+        try:
+            newcats.remove(arg)
+        except ValueError:
+            print("%s not in %s" % (arg, newcats))
+
+    return ''.join(globals().get(cat, "") for cat in newcats)
 
 
 def _handle_runs(char_list):
