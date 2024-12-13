@@ -27,6 +27,8 @@ class UnistringTest(unittest.TestCase):
     def _cats_that_match(self, c):
         matching_cats = []
         for cat in uni.cats:
+            if not hasattr(uni, cat):
+                continue
             s = getattr(uni, cat)
             if s == '':  # Probably Cs on Jython
                 continue

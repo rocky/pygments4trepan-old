@@ -20,44 +20,43 @@ class BashTest(unittest.TestCase):
         self.maxDiff = None
 
     def testCurlyNoEscapeAndQuotes(self):
-        fragment = u'echo "${a//["b"]/}"\n'
+        fragment = 'echo "${a//["b"]/}"\n'
         tokens = [
-            (Token.Name.Builtin, u'echo'),
-            (Token.Text, u' '),
-            (Token.Literal.String.Double, u'"'),
-            (Token.String.Interpol, u'${'),
-            (Token.Name.Variable, u'a'),
-            (Token.Punctuation, u'//['),
-            (Token.Literal.String.Double, u'"b"'),
-            (Token.Punctuation, u']/'),
-            (Token.String.Interpol, u'}'),
-            (Token.Literal.String.Double, u'"'),
-            (Token.Text, u'\n'),
+            (Token.Name.Builtin, 'echo'),
+            (Token.Text, ' '),
+            (Token.Literal.String.Double, '"'),
+            (Token.String.Interpol, '${'),
+            (Token.Name.Variable, 'a'),
+            (Token.Punctuation, '//['),
+            (Token.Literal.String.Double, '"b"'),
+            (Token.Punctuation, ']/'),
+            (Token.String.Interpol, '}'),
+            (Token.Literal.String.Double, '"'),
+            (Token.Text, '\n'),
         ]
         self.assertEqual(tokens, list(self.lexer.get_tokens(fragment)))
 
     def testCurlyWithEscape(self):
-        fragment = u'echo ${a//[\\"]/}\n'
+        fragment = 'echo ${a//[\\"]/}\n'
         tokens = [
-            (Token.Name.Builtin, u'echo'),
-            (Token.Text, u' '),
-            (Token.String.Interpol, u'${'),
-            (Token.Name.Variable, u'a'),
-            (Token.Punctuation, u'//['),
-            (Token.Literal.String.Escape, u'\\"'),
-            (Token.Punctuation, u']/'),
-            (Token.String.Interpol, u'}'),
-            (Token.Text, u'\n'),
+            (Token.Name.Builtin, 'echo'),
+            (Token.Text, ' '),
+            (Token.String.Interpol, '${'),
+            (Token.Name.Variable, 'a'),
+            (Token.Punctuation, '//['),
+            (Token.Literal.String.Escape, '\\"'),
+            (Token.Punctuation, ']/'),
+            (Token.String.Interpol, '}'),
+            (Token.Text, '\n'),
         ]
         self.assertEqual(tokens, list(self.lexer.get_tokens(fragment)))
 
     def testParsedSingle(self):
-        fragment = u"a=$'abc\\''\n"
+        fragment = "a=$'abc\\''\n"
         tokens = [
-            (Token.Name.Variable, u'a'),
-            (Token.Operator, u'='),
-            (Token.Literal.String.Single, u"$'abc\\''"),
-            (Token.Text, u'\n'),
+            (Token.Name.Variable, 'a'),
+            (Token.Operator, '='),
+            (Token.Literal.String.Single, "$'abc\\''"),
+            (Token.Text, '\n'),
         ]
         self.assertEqual(tokens, list(self.lexer.get_tokens(fragment)))
-

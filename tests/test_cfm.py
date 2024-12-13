@@ -20,27 +20,27 @@ class ColdfusionHtmlLexerTest(unittest.TestCase):
         self.lexer = ColdfusionHtmlLexer()
 
     def testBasicComment(self):
-        fragment = u'<!--- cfcomment --->'
+        fragment = '<!--- cfcomment --->'
         expected = [
-            (Token.Text, u''),
-            (Token.Comment.Multiline, u'<!---'),
-            (Token.Comment.Multiline, u' cfcomment '),
-            (Token.Comment.Multiline, u'--->'),
-            (Token.Text, u'\n'),
+            (Token.Text, ''),
+            (Token.Comment.Multiline, '<!---'),
+            (Token.Comment.Multiline, ' cfcomment '),
+            (Token.Comment.Multiline, '--->'),
+            (Token.Text, '\n'),
         ]
         self.assertEqual(expected, list(self.lexer.get_tokens(fragment)))
 
     def testNestedComment(self):
-        fragment = u'<!--- nested <!--- cfcomment ---> --->'
+        fragment = '<!--- nested <!--- cfcomment ---> --->'
         expected = [
-            (Token.Text, u''),
-            (Token.Comment.Multiline, u'<!---'),
-            (Token.Comment.Multiline, u' nested '),
-            (Token.Comment.Multiline, u'<!---'),
-            (Token.Comment.Multiline, u' cfcomment '),
-            (Token.Comment.Multiline, u'--->'),
-            (Token.Comment.Multiline, u' '),
-            (Token.Comment.Multiline, u'--->'),
-            (Token.Text, u'\n'),
+            (Token.Text, ''),
+            (Token.Comment.Multiline, '<!---'),
+            (Token.Comment.Multiline, ' nested '),
+            (Token.Comment.Multiline, '<!---'),
+            (Token.Comment.Multiline, ' cfcomment '),
+            (Token.Comment.Multiline, '--->'),
+            (Token.Comment.Multiline, ' '),
+            (Token.Comment.Multiline, '--->'),
+            (Token.Text, '\n'),
         ]
         self.assertEqual(expected, list(self.lexer.get_tokens(fragment)))

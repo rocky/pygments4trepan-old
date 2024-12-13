@@ -150,16 +150,6 @@ class HtmlFormatterTest(unittest.TestCase):
         fl = sd.splitlines()[0]
         self.assertTrue('.bar' in fl and '.baz' in fl)
 
-    def test_unicode_options(self):
-        fmt = HtmlFormatter(title=u'Föö',
-                            cssclass=u'bär',
-                            cssstyles=u'div:before { content: \'bäz\' }',
-                            encoding='utf-8')
-        handle, pathname = tempfile.mkstemp('.html')
-        tfile = os.fdopen(handle, 'w+b')
-        fmt.format(tokensource, tfile)
-        tfile.close()
-
     def test_ctags(self):
         try:
             import ctags

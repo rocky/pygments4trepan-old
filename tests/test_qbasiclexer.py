@@ -21,23 +21,23 @@ class QBasicTest(unittest.TestCase):
         self.maxDiff = None
 
     def testKeywordsWithDollar(self):
-        fragment = u'DIM x\nx = RIGHT$("abc", 1)\n'
+        fragment = 'DIM x\nx = RIGHT$("abc", 1)\n'
         expected = [
-            (Token.Keyword.Declaration, u'DIM'),
-            (Token.Text.Whitespace, u' '),
-            (Token.Name.Variable.Global, u'x'),
-            (Token.Text, u'\n'),
-            (Token.Name.Variable.Global, u'x'),
-            (Token.Text.Whitespace, u' '),
-            (Token.Operator, u'='),
-            (Token.Text.Whitespace, u' '),
-            (Token.Keyword.Reserved, u'RIGHT$'),
-            (Token.Punctuation, u'('),
-            (Token.Literal.String.Double, u'"abc"'),
-            (Token.Punctuation, u','),
-            (Token.Text.Whitespace, u' '),
-            (Token.Literal.Number.Integer.Long, u'1'),
-            (Token.Punctuation, u')'),
-            (Token.Text, u'\n'),
+            (Token.Keyword.Declaration, 'DIM'),
+            (Token.Text.Whitespace, ' '),
+            (Token.Name.Variable.Global, 'x'),
+            (Token.Text, '\n'),
+            (Token.Name.Variable.Global, 'x'),
+            (Token.Text.Whitespace, ' '),
+            (Token.Operator, '='),
+            (Token.Text.Whitespace, ' '),
+            (Token.Keyword.Reserved, 'RIGHT$'),
+            (Token.Punctuation, '('),
+            (Token.Literal.String.Double, '"abc"'),
+            (Token.Punctuation, ','),
+            (Token.Text.Whitespace, ' '),
+            (Token.Literal.Number.Integer.Long, '1'),
+            (Token.Punctuation, ')'),
+            (Token.Text, '\n'),
         ]
         self.assertEqual(expected, list(self.lexer.get_tokens(fragment)))

@@ -45,7 +45,7 @@ class TupleTransTest(unittest.TestCase):
         lx = TestLexer()
         toks = list(lx.get_tokens_unprocessed('a\ne'))
         self.assertEqual(toks,
-           [(0, Text.Root, 'a'), (1, Text, u'\n'),
+           [(0, Text.Root, 'a'), (1, Text, '\n'),
             (2, Text.Root, 'e')])
 
     def test_default(self):

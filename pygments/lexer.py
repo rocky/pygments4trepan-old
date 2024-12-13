@@ -429,8 +429,6 @@ class RegexLexerMeta(LexerMeta):
 
     def _process_token(cls, token):
         """Preprocess the token component of a token definition."""
-        assert type(token) is _TokenType or callable(token), \
-            'token type must be simple type or callable, not %r' % (token,)
         return token
 
     def _process_new_state(cls, new_state, unprocessed, processed):

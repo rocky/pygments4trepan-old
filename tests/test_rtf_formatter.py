@@ -27,10 +27,10 @@ class RtfFormatterTest(StringTests, unittest.TestCase):
         result = self._escape(kwargs.get('result', ''))
 
         if string is None:
-            string = (u"The expected output of '{t}'\n"
-                      u"\t\tShould be '{expected}'\n"
-                      u"\t\tActually outputs '{result}'\n"
-                      u"\t(WARNING: Partial Output of Result!)")
+            string = ("The expected output of '{t}'\n"
+                      "\t\tShould be '{expected}'\n"
+                      "\t\tActually outputs '{result}'\n"
+                      "\t(WARNING: Partial Output of Result!)")
 
         end = -(len(self._escape(self.foot)))
         start = end-len(expected)
@@ -49,29 +49,29 @@ class RtfFormatterTest(StringTests, unittest.TestCase):
         return result
 
     def test_rtf_header(self):
-        t = u''
+        t = ''
         result = self.format_rtf(t)
         expected = r'{\rtf1\ansi\uc0'
-        msg = (u"RTF documents are expected to start with '{expected}'\n"
-               u"\t\tStarts intead with '{result}'\n"
-               u"\t(WARNING: Partial Output of Result!)".format(
+        msg = ("RTF documents are expected to start with '{expected}'\n"
+               "\t\tStarts intead with '{result}'\n"
+               "\t(WARNING: Partial Output of Result!)".format(
                    expected = expected,
                    result = result[:len(expected)]))
         self.assertStartsWith(result, expected, msg)
 
     def test_rtf_footer(self):
-        t = u''
+        t = ''
         result = self.format_rtf(t)
         expected = self.foot
-        msg = (u"RTF documents are expected to end with '{expected}'\n"
-               u"\t\tEnds intead with '{result}'\n"
-               u"\t(WARNING: Partial Output of Result!)".format(
+        msg = ("RTF documents are expected to end with '{expected}'\n"
+               "\t\tEnds intead with '{result}'\n"
+               "\t(WARNING: Partial Output of Result!)".format(
                    expected = self._escape(expected),
                    result = self._escape(result[-len(expected):])))
         self.assertEndsWith(result, expected, msg)
 
     def test_ascii_characters(self):
-        t = u'a b c d ~'
+        t = 'a b c d ~'
         result = self.format_rtf(t)
         expected = (r'a b c d ~')
         if not result.endswith(self.foot):
@@ -80,7 +80,7 @@ class RtfFormatterTest(StringTests, unittest.TestCase):
         self.assertEndsWith(result, expected+self.foot, msg)
 
     def test_escape_characters(self):
-        t = u'\ {{'
+        t = '\ {{'
         result = self.format_rtf(t)
         expected = (r'\\ \{\{')
         if not result.endswith(self.foot):
@@ -89,7 +89,7 @@ class RtfFormatterTest(StringTests, unittest.TestCase):
         self.assertEndsWith(result, expected+self.foot, msg)
 
     def test_single_characters(self):
-        t = u'â € ¤ каждой'
+        t = 'â € ¤ каждой'
         result = self.format_rtf(t)
         expected = (r'{\u226} {\u8364} {\u164} '
                     r'{\u1082}{\u1072}{\u1078}{\u1076}{\u1086}{\u1081}')
@@ -99,7 +99,7 @@ class RtfFormatterTest(StringTests, unittest.TestCase):
         self.assertEndsWith(result, expected+self.foot, msg)
 
     def test_double_characters(self):
-        t = u'က 힣 ↕ ↕︎ 鼖'
+        t = 'yက 힣 ↕ ↕︎ 鼖'
         result = self.format_rtf(t)
         expected = (r'{\u4096} {\u55203} {\u8597} '
                     r'{\u8597}{\u65038} {\u55422}{\u56859}')

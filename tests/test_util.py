@@ -119,13 +119,13 @@ class UtilTest(unittest.TestCase):
         self.assertFalse(util.looks_like_xml('<html>'))
 
     def test_unirange(self):
-        first_non_bmp = u'\U00010000'
+        first_non_bmp = '\U00010000'
         r = re.compile(util.unirange(0x10000, 0x20000))
         m = r.match(first_non_bmp)
         self.assertTrue(m)
         self.assertEqual(m.end(), len(first_non_bmp))
-        self.assertFalse(r.match(u'\uffff'))
-        self.assertFalse(r.match(u'xxx'))
+        self.assertFalse(r.match('\uffff'))
+        self.assertFalse(r.match('xxx'))
         # Tests that end is inclusive
         r = re.compile(util.unirange(0x10000, 0x10000) + '+')
         # Tests that the plus works for the entire unicode point, if narrow

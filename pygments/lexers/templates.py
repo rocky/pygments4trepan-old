@@ -11,13 +11,10 @@
 
 import re
 
-from pygments.lexers.html import HtmlLexer, XmlLexer
-from pygments.lexers.javascript import JavascriptLexer, LassoLexer
+from pygments.lexers.html import XmlLexer
 from pygments.lexers.css import CssLexer
 from pygments.lexers.php import PhpLexer
 from pygments.lexers.python import PythonLexer
-from pygments.lexers.perl import PerlLexer
-from pygments.lexers.jvm import JavaLexer, TeaLangLexer
 from pygments.lexers.data import YamlLexer
 from pygments.lexer import Lexer, DelegatingLexer, RegexLexer, bygroups, \
     include, using, this, default, combined
@@ -31,15 +28,15 @@ __all__ = ['HtmlPhpLexer', 'XmlPhpLexer', 'CssPhpLexer',
            'SmartyLexer', 'HtmlSmartyLexer', 'XmlSmartyLexer',
            'CssSmartyLexer', 'JavascriptSmartyLexer', 'DjangoLexer',
            'HtmlDjangoLexer', 'CssDjangoLexer', 'XmlDjangoLexer',
-           'JavascriptDjangoLexer', 'GenshiLexer', 'HtmlGenshiLexer',
+           'JavascriptDjangoLexer', 'GenshiLexer',
            'GenshiTextLexer', 'CssGenshiLexer', 'JavascriptGenshiLexer',
            'MyghtyLexer', 'MyghtyHtmlLexer', 'MyghtyXmlLexer',
-           'MyghtyCssLexer', 'MyghtyJavascriptLexer', 'MasonLexer', 'MakoLexer',
+           'MyghtyCssLexer', 'MyghtyJavascriptLexer', 'MakoLexer',
            'MakoHtmlLexer', 'MakoXmlLexer', 'MakoJavascriptLexer',
-           'MakoCssLexer', 'JspLexer', 'CheetahLexer', 'CheetahHtmlLexer',
+           'MakoCssLexer', 'CheetahLexer', 'CheetahHtmlLexer',
            'CheetahXmlLexer', 'CheetahJavascriptLexer', 'EvoqueLexer',
            'EvoqueHtmlLexer', 'EvoqueXmlLexer', 'ColdfusionLexer',
-           'ColdfusionHtmlLexer', 'ColdfusionCFCLexer', 'VelocityLexer',
+           'ColdfusionCFCLexer', 'VelocityLexer',
            'VelocityHtmlLexer', 'VelocityXmlLexer', 'SspLexer',
            'TeaTemplateLexer', 'LassoHtmlLexer', 'LassoXmlLexer',
            'LassoCssLexer', 'LassoJavascriptLexer', 'HandlebarsLexer',
@@ -187,13 +184,13 @@ class SmartyLexer(RegexLexer):
 
     def analyse_text(text):
         rv = 0.0
-        if re.search('\{if\s+.*?\}.*?\{/if\}', text):
+        if re.search(r'\{if\s+.*?\}.*?\{/if\}', text):
             rv += 0.15
-        if re.search('\{include\s+file=.*?\}', text):
+        if re.search(r'\{include\s+file=.*?\}', text):
             rv += 0.15
-        if re.search('\{foreach\s+.*?\}.*?\{/foreach\}', text):
+        if re.search(r'\{foreach\s+.*?\}.*?\{/foreach\}', text):
             rv += 0.15
-        if re.search('\{\$.*?\}', text):
+        if re.search(r'\{\$.*?\}', text):
             rv += 0.01
         return rv
 
@@ -291,7 +288,7 @@ class VelocityHtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+velocity']
 
     def __init__(self, **options):
-        super(VelocityHtmlLexer, self).__init__(HtmlLexer, VelocityLexer,
+        super(VelocityHtmlLexer, self).__init__(VelocityLexer,
                                                 **options)
 
 
@@ -462,7 +459,7 @@ class MyghtyHtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+myghty']
 
     def __init__(self, **options):
-        super(MyghtyHtmlLexer, self).__init__(HtmlLexer, MyghtyLexer,
+        super(MyghtyHtmlLexer, self).__init__(MyghtyLexer,
                                               **options)
 
 
@@ -498,8 +495,7 @@ class MyghtyJavascriptLexer(DelegatingLexer):
                  'text/javascript+mygthy']
 
     def __init__(self, **options):
-        super(MyghtyJavascriptLexer, self).__init__(JavascriptLexer,
-                                                    MyghtyLexer, **options)
+        super(MyghtyJavascriptLexer, self).__init__(MyghtyLexer, **options)
 
 
 class MyghtyCssLexer(DelegatingLexer):
@@ -517,61 +513,6 @@ class MyghtyCssLexer(DelegatingLexer):
     def __init__(self, **options):
         super(MyghtyCssLexer, self).__init__(CssLexer, MyghtyLexer,
                                              **options)
-
-
-class MasonLexer(RegexLexer):
-    """
-    Generic `mason templates`_ lexer. Stolen from Myghty lexer. Code that isn't
-    Mason markup is HTML.
-
-    .. _mason templates: http://www.masonhq.com/
-
-    .. versionadded:: 1.4
-    """
-    name = 'Mason'
-    aliases = ['mason']
-    filenames = ['*.m', '*.mhtml', '*.mc', '*.mi', 'autohandler', 'dhandler']
-    mimetypes = ['application/x-mason']
-
-    tokens = {
-        'root': [
-            (r'\s+', Text),
-            (r'(<%doc>)(.*?)(</%doc>)(?s)',
-             bygroups(Name.Tag, Comment.Multiline, Name.Tag)),
-            (r'(<%(?:def|method))(\s*)(.*?)(>)(.*?)(</%\2\s*>)(?s)',
-             bygroups(Name.Tag, Text, Name.Function, Name.Tag,
-                      using(this), Name.Tag)),
-            (r'(<%\w+)(.*?)(>)(.*?)(</%\2\s*>)(?s)',
-             bygroups(Name.Tag, Name.Function, Name.Tag,
-                      using(PerlLexer), Name.Tag)),
-            (r'(<&[^|])(.*?)(,.*?)?(&>)(?s)',
-             bygroups(Name.Tag, Name.Function, using(PerlLexer), Name.Tag)),
-            (r'(<&\|)(.*?)(,.*?)?(&>)(?s)',
-             bygroups(Name.Tag, Name.Function, using(PerlLexer), Name.Tag)),
-            (r'</&>', Name.Tag),
-            (r'(<%!?)(.*?)(%>)(?s)',
-             bygroups(Name.Tag, using(PerlLexer), Name.Tag)),
-            (r'(?<=^)#[^\n]*(\n|\Z)', Comment),
-            (r'(?<=^)(%)([^\n]*)(\n|\Z)',
-             bygroups(Name.Tag, using(PerlLexer), Other)),
-            (r"""(?sx)
-                 (.+?)               # anything, followed by:
-                 (?:
-                  (?<=\n)(?=[%#]) |  # an eval or comment line
-                  (?=</?[%&]) |      # a substitution or block or
-                                     # call start or end
-                                     # - don't consume
-                  (\\\n) |           # an escaped newline
-                  \Z                 # end of string
-                 )""", bygroups(using(HtmlLexer), Operator)),
-        ]
-    }
-
-    def analyse_text(text):
-        rv = 0.0
-        if re.search('<&', text) is not None:
-            rv = 1.0
-        return rv
 
 
 class MakoLexer(RegexLexer):
@@ -655,7 +596,7 @@ class MakoHtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+mako']
 
     def __init__(self, **options):
-        super(MakoHtmlLexer, self).__init__(HtmlLexer, MakoLexer,
+        super(MakoHtmlLexer, self).__init__(MakoLexer,
                                             **options)
 
 
@@ -782,7 +723,7 @@ class CheetahHtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+cheetah', 'text/html+spitfire']
 
     def __init__(self, **options):
-        super(CheetahHtmlLexer, self).__init__(HtmlLexer, CheetahLexer,
+        super(CheetahHtmlLexer, self).__init__(CheetahLexer,
                                                **options)
 
 
@@ -921,28 +862,28 @@ class GenshiMarkupLexer(RegexLexer):
     }
 
 
-class HtmlGenshiLexer(DelegatingLexer):
-    """
-    A lexer that highlights `genshi <http://genshi.edgewall.org/>`_ and
-    `kid <http://kid-templating.org/>`_ kid HTML templates.
-    """
+# class HtmlGenshiLexer(DelegatingLexer):
+#     """
+#     A lexer that highlights `genshi <http://genshi.edgewall.org/>`_ and
+#     `kid <http://kid-templating.org/>`_ kid HTML templates.
+#     """
 
-    name = 'HTML+Genshi'
-    aliases = ['html+genshi', 'html+kid']
-    alias_filenames = ['*.html', '*.htm', '*.xhtml']
-    mimetypes = ['text/html+genshi']
+#     name = 'HTML+Genshi'
+#     aliases = ['html+genshi', 'html+kid']
+#     alias_filenames = ['*.html', '*.htm', '*.xhtml']
+#     mimetypes = ['text/html+genshi']
 
-    def __init__(self, **options):
-        super(HtmlGenshiLexer, self).__init__(HtmlLexer, GenshiMarkupLexer,
-                                              **options)
+#     def __init__(self, **options):
+#         super(HtmlGenshiLexer, self).__init__(GenshiMarkupLexer,
+#                                               **options)
 
-    def analyse_text(text):
-        rv = 0.0
-        if re.search('\$\{.*?\}', text) is not None:
-            rv += 0.2
-        if re.search('py:(.*?)=["\']', text) is not None:
-            rv += 0.2
-        return rv + HtmlLexer.analyse_text(text) - 0.01
+#     def analyse_text(text):
+#         rv = 0.0
+#         if re.search('\$\{.*?\}', text) is not None:
+#             rv += 0.2
+#         if re.search('py:(.*?)=["\']', text) is not None:
+#             rv += 0.2
+#         return rv + HtmlLexer.analyse_text(text) - 0.01
 
 
 class GenshiLexer(DelegatingLexer):
@@ -963,7 +904,7 @@ class GenshiLexer(DelegatingLexer):
 
     def analyse_text(text):
         rv = 0.0
-        if re.search('\$\{.*?\}', text) is not None:
+        if re.search(r'\$\{.*?\}', text) is not None:
             rv += 0.2
         if re.search('py:(.*?)=["\']', text) is not None:
             rv += 0.2
@@ -1025,7 +966,7 @@ class RhtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+ruby']
 
     def __init__(self, **options):
-        super(RhtmlLexer, self).__init__(HtmlLexer, ErbLexer, **options)
+        super(RhtmlLexer, self).__init__(ErbLexer, **options)
 
     def analyse_text(text):
         rv = ErbLexer.analyse_text(text) - 0.01
@@ -1111,7 +1052,7 @@ class HtmlPhpLexer(DelegatingLexer):
                  'application/x-httpd-php4', 'application/x-httpd-php5']
 
     def __init__(self, **options):
-        super(HtmlPhpLexer, self).__init__(HtmlLexer, PhpLexer, **options)
+        super(HtmlPhpLexer, self).__init__(PhpLexer, **options)
 
     def analyse_text(text):
         rv = PhpLexer.analyse_text(text) - 0.01
@@ -1348,31 +1289,6 @@ class JavascriptDjangoLexer(DelegatingLexer):
         return DjangoLexer.analyse_text(text) - 0.05
 
 
-class JspRootLexer(RegexLexer):
-    """
-    Base for the `JspLexer`. Yields `Token.Other` for area outside of
-    JSP tags.
-
-    .. versionadded:: 0.7
-    """
-
-    tokens = {
-        'root': [
-            (r'<%\S?', Keyword, 'sec'),
-            # FIXME: I want to make these keywords but still parse attributes.
-            (r'</?jsp:(forward|getProperty|include|plugin|setProperty|useBean).*?>',
-             Keyword),
-            (r'[^<]+', Other),
-            (r'<', Other),
-        ],
-        'sec': [
-            (r'%>', Keyword, '#pop'),
-            # note: '\w\W' != '.' without DOTALL.
-            (r'[\w\W]+?(?=%>|\Z)', using(JavaLexer)),
-        ],
-    }
-
-
 class JspLexer(DelegatingLexer):
     """
     Lexer for Java Server Pages.
@@ -1462,7 +1378,7 @@ class EvoqueHtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+evoque']
 
     def __init__(self, **options):
-        super(EvoqueHtmlLexer, self).__init__(HtmlLexer, EvoqueLexer,
+        super(EvoqueHtmlLexer, self).__init__(EvoqueLexer,
                                               **options)
 
 
@@ -1587,7 +1503,7 @@ class ColdfusionHtmlLexer(DelegatingLexer):
     mimetypes = ['application/x-coldfusion']
 
     def __init__(self, **options):
-        super(ColdfusionHtmlLexer, self).__init__(HtmlLexer, ColdfusionMarkupLexer,
+        super(ColdfusionHtmlLexer, self).__init__(ColdfusionMarkupLexer,
                                                   **options)
 
 
@@ -1623,35 +1539,13 @@ class SspLexer(DelegatingLexer):
 
     def analyse_text(text):
         rv = 0.0
-        if re.search('val \w+\s*:', text):
+        if re.search(r'val \w+\s*:', text):
             rv += 0.6
         if looks_like_xml(text):
             rv += 0.2
         if '<%' in text and '%>' in text:
             rv += 0.1
         return rv
-
-
-class TeaTemplateRootLexer(RegexLexer):
-    """
-    Base for the `TeaTemplateLexer`. Yields `Token.Other` for area outside of
-    code blocks.
-
-    .. versionadded:: 1.5
-    """
-
-    tokens = {
-        'root': [
-            (r'<%\S?', Keyword, 'sec'),
-            (r'[^<]+', Other),
-            (r'<', Other),
-        ],
-        'sec': [
-            (r'%>', Keyword, '#pop'),
-            # note: '\w\W' != '.' without DOTALL.
-            (r'[\w\W]+?(?=%>|\Z)', using(TeaLangLexer)),
-        ],
-    }
 
 
 class TeaTemplateLexer(DelegatingLexer):
@@ -1697,7 +1591,7 @@ class LassoHtmlLexer(DelegatingLexer):
                  'application/x-httpd-lasso[89]']
 
     def __init__(self, **options):
-        super(LassoHtmlLexer, self).__init__(HtmlLexer, LassoLexer, **options)
+        super(LassoHtmlLexer, self).__init__(LassoLexer, **options)
 
     def analyse_text(text):
         rv = LassoLexer.analyse_text(text) - 0.01
@@ -1846,7 +1740,7 @@ class HandlebarsHtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+handlebars', 'text/x-handlebars-template']
 
     def __init__(self, **options):
-        super(HandlebarsHtmlLexer, self).__init__(HtmlLexer, HandlebarsLexer, **options)
+        super(HandlebarsHtmlLexer, self).__init__(HandlebarsLexer, **options)
 
 
 class YamlJinjaLexer(DelegatingLexer):
@@ -1926,7 +1820,7 @@ class LiquidLexer(RegexLexer):
 
         'output': [
             include('whitespace'),
-            ('\}\}', Punctuation, '#pop'),  # end of output
+            (r'\}\}', Punctuation, '#pop'),  # end of output
 
             (r'\|', Punctuation, 'filters')
         ],
@@ -2171,4 +2065,4 @@ class TwigHtmlLexer(DelegatingLexer):
     mimetypes = ['text/html+twig']
 
     def __init__(self, **options):
-        super(TwigHtmlLexer, self).__init__(HtmlLexer, TwigLexer, **options)
+        super(TwigHtmlLexer, self).__init__(TwigLexer, **options)
