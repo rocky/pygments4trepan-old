@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import print_function
-
 import re
 import sys
 import time
@@ -28,11 +26,11 @@ __all__ = ['Lexer', 'RegexLexer', 'ExtendedRegexLexer', 'DelegatingLexer',
            'default', 'words']
 
 
-_encoding_map = [(b'\xef\xbb\xbf', 'utf-8'),
-                 (b'\xff\xfe\0\0', 'utf-32'),
-                 (b'\0\0\xfe\xff', 'utf-32be'),
-                 (b'\xff\xfe', 'utf-16'),
-                 (b'\xfe\xff', 'utf-16be')]
+_encoding_map = [('\xef\xbb\xbf', 'utf-8'),
+                 ('\xff\xfe\0\0', 'utf-32'),
+                 ('\0\0\xfe\xff', 'utf-32be'),
+                 ('\xff\xfe', 'utf-16'),
+                 ('\xfe\xff', 'utf-16be')]
 
 _default_analyse = staticmethod(lambda x: 0.0)
 
@@ -49,7 +47,6 @@ class LexerMeta(type):
         return type.__new__(cls, name, bases, d)
 
 
-@add_metaclass(LexerMeta)
 class Lexer(object):
     """
     Lexer for a specific language.
@@ -95,6 +92,11 @@ class Lexer(object):
 
     #: Priority, should multiple lexers match and no content is provided
     priority = 0
+
+    def __new__(cls, name, bases, d):
+        if 'analyse_text' in d:
+            d['analyse_text'] = make_analysator(d['analyse_text'])
+        return type.__new__(cls, name, bases, d)
 
     def __init__(self, **options):
         self.options = options
@@ -495,7 +497,7 @@ class RegexLexerMeta(LexerMeta):
 
             try:
                 rex = cls._process_regex(tdef[0], rflags, state)
-            except Exception as err:
+            except Exception(err):
                 raise ValueError("uncompilable regex %r in state %r of %r: %s" %
                                  (tdef[0], state, cls, err))
 
@@ -581,7 +583,7 @@ class RegexLexerMeta(LexerMeta):
         return type.__call__(cls, *args, **kwds)
 
 
-@add_metaclass(RegexLexerMeta)
+# @add_metaclass(RegexLexerMeta)
 class RegexLexer(Lexer):
     """
     Base for simple stateful regular expression-based lexers.
@@ -837,7 +839,7 @@ class ProfilingRegexLexerMeta(RegexLexerMeta):
         return match_func
 
 
-@add_metaclass(ProfilingRegexLexerMeta)
+# @add_metaclass(ProfilingRegexLexerMeta)
 class ProfilingRegexLexer(RegexLexer):
     """Drop-in replacement for RegexLexer that does profiling of its regexes."""
 

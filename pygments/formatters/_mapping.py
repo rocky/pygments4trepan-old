@@ -13,8 +13,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import print_function
-
 FORMATTERS = {
     'BBCodeFormatter': ('pygments.formatters.bbcode', 'BBCode', ('bbcode', 'bb'), (), 'Format tokens with BBcodes. These formatting codes are used by many bulletin boards, so you can highlight your sourcecode with pygments before posting it there.'),
     'BmpImageFormatter': ('pygments.formatters.img', 'img_bmp', ('bmp', 'bitmap'), ('*.bmp',), 'Create a bitmap image from source code. This uses the Python Imaging Library to generate a pixmap from the source code.'),
@@ -62,15 +60,18 @@ if __name__ == '__main__':
     found_formatters.sort()
 
     # extract useful sourcecode from this file
-    with open(__file__) as fp:
-        content = fp.read()
+    fp = open(__file__)
+    content = fp.read()
+    fp.close()
+
     header = content[:content.find('FORMATTERS = {')]
     footer = content[content.find("if __name__ == '__main__':"):]
 
     # write new file
-    with open(__file__, 'w') as fp:
-        fp.write(header)
-        fp.write('FORMATTERS = {\n    %s\n}\n\n' % ',\n    '.join(found_formatters))
-        fp.write(footer)
+    fp = open(__file__, 'w')
+    fp.write(header)
+    fp.write('FORMATTERS = {\n    %s\n}\n\n' % ',\n    '.join(found_formatters))
+    fp.write(footer)
+    close(fp)
 
     print ('=== %d formatters processed.' % len(found_formatters))

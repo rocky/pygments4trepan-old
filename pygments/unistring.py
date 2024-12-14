@@ -163,8 +163,9 @@ if __name__ == '__main__':
     categories_bmp = {'xid_start': [], 'xid_continue': []}
     categories_nonbmp = {'xid_start': [], 'xid_continue': []}
 
-    with open(__file__) as fp:
-        content = fp.read()
+    fp = open(__file__)
+    content = fp.read()
+    close(fp)
 
     header = content[:content.find('Cc =')]
     footer = content[content.find("def combine("):]
@@ -188,34 +189,35 @@ if __name__ == '__main__':
         if ('a' + c).isidentifier():
             cat_dic['xid_continue'].append(c)
 
-    with open(__file__, 'w') as fp:
-        fp.write(header)
+    fp = open(__file__, 'w')
+    fp.write(header)
 
-        for cat in sorted(categories_bmp):
-            val = ''.join(_handle_runs(categories_bmp[cat]))
-            if cat == 'Cs':
-                # Jython can't handle isolated surrogates
-                fp.write("""\
+    for cat in sorted(categories_bmp):
+        val = ''.join(_handle_runs(categories_bmp[cat]))
+        if cat == 'Cs':
+            # Jython can't handle isolated surrogates
+            fp.write("""\
 try:
-    Cs = eval(r"u%s")
+Cs = eval(r"u%s")
 except UnicodeDecodeError:
-    Cs = ''  # Jython can't handle isolated surrogates\n\n""" % ascii(val))
-            else:
-                fp.write('%s = u%a\n\n' % (cat, val))
+Cs = ''  # Jython can't handle isolated surrogates\n\n""" % ascii(val))
+        else:
+            fp.write('%s = u%a\n\n' % (cat, val))
 
-        fp.write('if sys.maxunicode > 0xFFFF:\n')
-        fp.write('    # non-BMP characters, use only on wide Unicode builds\n')
-        for cat in sorted(categories_nonbmp):
-            # no special case for Cs needed, since there are no surrogates
-            # in the higher planes
-            val = ''.join(_handle_runs(categories_nonbmp[cat]))
-            fp.write('    %s += u%a\n\n' % (cat, val))
+    fp.write('if sys.maxunicode > 0xFFFF:\n')
+    fp.write('    # non-BMP characters, use only on wide Unicode builds\n')
+    for cat in sorted(categories_nonbmp):
+        # no special case for Cs needed, since there are no surrogates
+        # in the higher planes
+        val = ''.join(_handle_runs(categories_nonbmp[cat]))
+        fp.write('    %s += u%a\n\n' % (cat, val))
 
-        cats = sorted(categories_bmp)
-        cats.remove('xid_start')
-        cats.remove('xid_continue')
-        fp.write('cats = %r\n\n' % cats)
+    cats = sorted(categories_bmp)
+    cats.remove('xid_start')
+    cats.remove('xid_continue')
+    fp.write('cats = %r\n\n' % cats)
 
-        fp.write('# Generated from unidata %s\n\n' % (unicodedata.unidata_version,))
+    fp.write('# Generated from unidata %s\n\n' % (unicodedata.unidata_version,))
 
-        fp.write(footer)
+    fp.write(footer)
+    close(fp)

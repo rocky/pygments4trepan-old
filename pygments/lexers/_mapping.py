@@ -13,8 +13,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import print_function
-
 LEXERS = {
     'ABAPLexer': ('pygments.lexers.business', 'ABAP', ('abap',), ('*.abap',), ('text/x-abap',)),
     'APLLexer': ('pygments.lexers.apl', 'APL', ('apl',), ('*.apl',), ()),
@@ -377,15 +375,17 @@ if __name__ == '__main__':
     found_lexers.sort()
 
     # extract useful sourcecode from this file
-    with open(__file__) as fp:
-        content = fp.read()
+    fp = open(__file__)
+    content = fp.read()
+    close(fp)
     header = content[:content.find('LEXERS = {')]
     footer = content[content.find("if __name__ == '__main__':"):]
 
     # write new file
-    with open(__file__, 'w') as fp:
-        fp.write(header)
-        fp.write('LEXERS = {\n    %s,\n}\n\n' % ',\n    '.join(found_lexers))
-        fp.write(footer)
+    fp = open(__file__, 'w')
+    fp.write(header)
+    fp.write('LEXERS = {\n    %s,\n}\n\n' % ',\n    '.join(found_lexers))
+    fp.write(footer)
+    close(fp)
 
     print ('=== %d lexers processed.' % len(found_lexers))

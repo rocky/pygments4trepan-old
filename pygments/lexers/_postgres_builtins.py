@@ -601,8 +601,9 @@ if __name__ == '__main__':
         return dt
 
     def update_consts(filename, constname, content):
-        with open(filename) as f:
-            data = f.read()
+        f = open(filename)
+        data = f.read()
+        f.close()
 
         # Line to start/end inserting
         re_match = re.compile(r'^%s\s*=\s*\($.*?^\s*\)$' % constname, re.M | re.S)
@@ -614,7 +615,8 @@ if __name__ == '__main__':
         new_block = format_lines(constname, content)
         data = data[:m.start()] + new_block + data[m.end():]
 
-        with open(filename, 'w') as f:
-            f.write(data)
+        f = open(filename, 'w')
+        f.write(data)
+        f.close()
 
     update_myself()

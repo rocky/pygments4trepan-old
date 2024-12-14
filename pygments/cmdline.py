@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import print_function
-
 import sys
 import getopt
 from textwrap import dedent
@@ -144,7 +142,7 @@ def _print_help(what, name):
             print("Help on the %s filter:" % name)
             print(dedent(cls.__doc__))
     except AttributeError:
-        print("%s not found!" % what, file=sys.stderr)
+        print("%s not found!" % what)
 
 
 def _print_list(what):
@@ -209,7 +207,7 @@ def main(args=sys.argv):
     try:
         popts, args = getopt.getopt(args[1:], "l:f:F:o:O:P:LS:a:N:hVHgs")
     except getopt.GetoptError:
-        print(usage, file=sys.stderr)
+        print(usage)
         return 2
     opts = {}
     O_opts = []
@@ -236,7 +234,7 @@ def main(args=sys.argv):
     L_opt = opts.pop('-L', None)
     if L_opt is not None:
         if opts:
-            print(usage, file=sys.stderr)
+            print(usage)
             return 2
 
         # print version
@@ -251,12 +249,12 @@ def main(args=sys.argv):
     H_opt = opts.pop('-H', None)
     if H_opt is not None:
         if opts or len(args) != 2:
-            print(usage, file=sys.stderr)
+            print(usage)
             return 2
 
         what, name = args
         if what not in ('lexer', 'formatter', 'filter'):
-            print(usage, file=sys.stderr)
+            print(usage)
             return 2
 
         _print_help(what, name)
@@ -285,10 +283,10 @@ def main(args=sys.argv):
     if infn is not None:
         try:
             lexer = get_lexer_for_filename(infn, **parsed_opts)
-        except ClassNotFound as err:
+        except ClassNotFound(err):
             lexer = TextLexer()
-        except OptionError as err:
-            print('Error:', err, file=sys.stderr)
+        except OptionError(err):
+            print('Error:', err)
             return 1
 
         print(lexer.aliases[0])
@@ -300,30 +298,30 @@ def main(args=sys.argv):
     if S_opt is not None:
         f_opt = opts.pop('-f', None)
         if not f_opt:
-            print(usage, file=sys.stderr)
+            print(usage)
             return 2
         if opts or args:
-            print(usage, file=sys.stderr)
+            print(usage)
             return 2
 
         try:
             parsed_opts['style'] = S_opt
             fmter = get_formatter_by_name(f_opt, **parsed_opts)
-        except ClassNotFound as err:
-            print(err, file=sys.stderr)
+        except ClassNotFound(err):
+            print(err)
             return 1
 
         arg = a_opt or ''
         try:
             print(fmter.get_style_defs(arg))
-        except Exception as err:
-            print('Error:', err, file=sys.stderr)
+        except Exception(err):
+            print('Error:', err)
             return 1
         return 0
 
     # if no -S is given, -a is not allowed
     if a_opt is not None:
-        print(usage, file=sys.stderr)
+        print(usage)
         return 2
 
     # parse -F options
@@ -336,21 +334,27 @@ def main(args=sys.argv):
     if fmter:
         try:
             fmter = get_formatter_by_name(fmter, **parsed_opts)
-        except (OptionError, ClassNotFound) as err:
-            print('Error:', err, file=sys.stderr)
+        except OptionError(err):
+            print('Error:', err)
+            return 1
+        except ClassNotFound(err):
+            print('Error:', err)
             return 1
 
     if outfn:
         if not fmter:
             try:
                 fmter = get_formatter_for_filename(outfn, **parsed_opts)
-            except (OptionError, ClassNotFound) as err:
-                print('Error:', err, file=sys.stderr)
+            except OptionError(err):
+                print('Error:', err)
+                return 1
+            except ClassNotFound(err):
+                print('Error:', err)
                 return 1
         try:
             outfile = open(outfn, 'wb')
-        except Exception as err:
-            print('Error: cannot open outfile:', err, file=sys.stderr)
+        except Exception(err):
+            print('Error: cannot open outfile:')
             return 1
     else:
         if not fmter:
@@ -391,8 +395,11 @@ def main(args=sys.argv):
     if lexer:
         try:
             lexer = get_lexer_by_name(lexer, **parsed_opts)
-        except (OptionError, ClassNotFound) as err:
-            print('Error:', err, file=sys.stderr)
+        except OptionError(err):
+            print('Error:', err)
+            return 1
+        except ClassNotFound(err):
+            print('Error:', err)
             return 1
 
     # read input code
@@ -400,20 +407,20 @@ def main(args=sys.argv):
 
     if args:
         if len(args) > 1:
-            print(usage, file=sys.stderr)
+            print(usage)
             return 2
 
         if '-s' in opts:
-            print('Error: -s option not usable when input file specified',
-                  file=sys.stderr)
+            print('Error: -s option not usable when input file specified')
             return 1
 
         infn = args[0]
         try:
-            with open(infn, 'rb') as infp:
-                code = infp.read()
-        except Exception as err:
-            print('Error: cannot read infile:', err, file=sys.stderr)
+            infp = open(infn, 'rb')
+            code = infp.read()
+            close(infp)
+        except Exception(err):
+            print('Error: cannot read infile:', err)
             return 1
         if not inencoding:
             code, inencoding = guess_decode(code)
@@ -422,17 +429,17 @@ def main(args=sys.argv):
         if not lexer:
             try:
                 lexer = get_lexer_for_filename(infn, code, **parsed_opts)
-            except ClassNotFound as err:
+            except ClassNotFound(err):
                 if '-g' in opts:
                     try:
                         lexer = guess_lexer(code, **parsed_opts)
                     except ClassNotFound:
                         lexer = TextLexer(**parsed_opts)
                 else:
-                    print('Error:', err, file=sys.stderr)
+                    print('Error:', err)
                     return 1
-            except OptionError as err:
-                print('Error:', err, file=sys.stderr)
+            except OptionError(err):
+                print('Error:', err)
                 return 1
 
     elif '-s' not in opts:  # treat stdin as full file (-s support is later)
@@ -472,8 +479,7 @@ def main(args=sys.argv):
             highlight(code, lexer, fmter, outfile)
         else:
             if not lexer:
-                print('Error: when using -s a lexer has to be selected with -l',
-                      file=sys.stderr)
+                print('Error: when using -s a lexer has to be selected with -l')
                 return 1
             # line by line processing of stdin (eg: for 'tail -f')...
             try:
@@ -500,9 +506,9 @@ def main(args=sys.argv):
         if len(info) >= 3:
             # extract relevant file and position info
             msg += '\n   (f%s)' % info[-2].split('\n')[0].strip()[1:]
-        print(file=sys.stderr)
-        print('*** Error while highlighting:', file=sys.stderr)
-        print(msg, file=sys.stderr)
+        print(file)
+        print('*** Error while highlighting:')
+        print(msg)
         return 1
 
     return 0
