@@ -760,10 +760,22 @@ class Tads3Lexer(RegexLexer):
             verbatim = ''.join(['(?:%s|%s)' % (re.escape(c.lower()),
                                                re.escape(c.upper()))
                                 for c in verbatim])
-        char = r'"' if double else r"'"
-        token = String.Double if double else String.Single
-        escaped_quotes = r'+|%s(?!%s{2})' % (char, char) if triple else r''
-        prefix = '%s%s' % ('t' if triple else '', 'd' if double else 's')
+        if double:
+            char = r'"'
+        else:
+            char = r"'"
+        if double:
+            token = String.Double
+        else:
+            token = String.Single
+        if triple:
+            escaped_quotes = r'+|%s(?!%s{2})' % (char, char)
+        else:
+            escaped_quotes = r''
+        if triple:
+            prefix = '%s' % 't'
+        else:
+            prefix = '%s' % 's'
         tag_state_name = '%sqt' % prefix
         state = []
         if triple:
@@ -806,11 +818,36 @@ class Tads3Lexer(RegexLexer):
         return state
 
     def _make_tag_state(triple, double, _escape=_escape):
-        char = r'"' if double else r"'"
-        quantifier = r'{3,}' if triple else r''
-        state_name = '%s%sqt' % ('t' if triple else '', 'd' if double else 's')
-        token = String.Double if double else String.Single
-        escaped_quotes = r'+|%s(?!%s{2})' % (char, char) if triple else r''
+        if double:
+            char = r'"'
+        else:
+            char = r"'"
+
+        if triple:
+            quantifier = r'{3,}'
+        else:
+            quantifier = r''
+
+        if triple:
+            if double:
+                state_name = '%s%sqt' % ('t', 'd')
+            else:
+                state_name = '%s%sqt' % ('t', 's')
+        else:
+            if double:
+                state_name = '%sqt' % 'd'
+            else:
+                state_name = '%sqt' % 's'
+
+        if double:
+            token = String.Double
+        else:
+            token = String.Single
+        if triple:
+            escaped_quotes = r'+|%s(?!%s{2})' % (char, char)
+        else:
+            escaped_quotes = r''
+
         return [
             (r'%s%s' % (char, quantifier), token, '#pop:2'),
             (r'(\s|\\\n)+', Text),

@@ -180,7 +180,10 @@ if __name__ == '__main__':
         elif ord(c) in (0x2d, 0x5b, 0x5c, 0x5d, 0x5e):
             # Escape regex metachars.
             c = '\\' + c
-        cat_dic = categories_bmp if code < 0x10000 else categories_nonbmp
+        if code < 0x10000:
+            cat_dic = categories_bmp
+        else:
+            cat_dic = categories_nonbmp
         cat_dic.setdefault(cat, []).append(c)
         # XID_START and XID_CONTINUE are special categories used for matching
         # identifiers in Python 3.

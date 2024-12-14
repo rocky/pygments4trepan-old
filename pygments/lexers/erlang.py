@@ -503,7 +503,10 @@ class ElixirConsoleLexer(Lexer):
                             yield item
                         curcode = ''
                         insertions = []
-                    token = Generic.Error if in_error else Generic.Output
+                    if in_error:
+                        token = Generic.Error
+                    else:
+                        token = Generic.Output
                     yield match.start(), token, line
         if curcode:
             for item in do_insertions(
